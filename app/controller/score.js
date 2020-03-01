@@ -6,12 +6,13 @@ class ScoreController extends Controller {
   // 修改
   async update() {
     const { ctx } = this;
+    ctx.validate({ score: { type: 'string', require: true, format: /^100$|^(\d|[1-9]\d)$/ } }, ctx.request.body);
     const { totalSigns, score } = ctx.request.body;
     const res = await this.app.updateScore(totalSigns, score);
     if (res) {
-      ctx.helper.setObj(ctx, {}, '修改成功');
+      ctx.helper.setObj(ctx, { result: true, msg: '修改成功' });
     } else {
-      ctx.helper.setObj(ctx, {}, '修改失败');
+      ctx.helper.setObj(ctx, { result: true, msg: '修改失败' });
     }
   }
   // 分数列表

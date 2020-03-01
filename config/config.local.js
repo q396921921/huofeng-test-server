@@ -13,7 +13,7 @@ module.exports = appInfo => {
 
   config.sign = {
     signScore: {
-      one: 1,
+      // one: 1,
     }
   };
 

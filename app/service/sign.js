@@ -29,6 +29,7 @@ class SignService extends Service {
         phone,
       }, this.app.config.jwt.secret);
       await this.app.redis.set(phone, token);
+      await this.app.redis.expire(phone, 3600);
       return { msg: '创建成功', token };
     }
   }
@@ -53,11 +54,12 @@ class SignService extends Service {
     const globalDate = user.globalDate; // 当前此用户对应的系统日期
     const oldScore = user.totalScore; // 用户当前总分数
     const signObj = await this.app.sign(totalSign, globalDate, signStartDate, oldScore);
-    await ctx.model.User.updateOne({ _id }, { signStartDate, totalSign: signObj.totalSign, isSign: 1, totalScore: signObj.newScore });
+    await ctx.model.User.updateOne({ _id }, { signStartDate: signObj.signStartDate, totalSign: signObj.totalSign, isSign: 1, totalScore: signObj.newScore });
     const time = globalDate ? globalDate + ' ' + moment().format('HH:mm') : moment().format('YYYY-MM-DD HH:mm');
     await ctx.model.Sign.create({ userId: _id, date: signObj.date, time, score: signObj.insertScore });
-    let msg = '签到成功';
-    return { msg }
+    let msg = '恭喜您,签到成功';
+    let result = true;
+    return { msg, result, insertScore: signObj.insertScore }
   }
   /**
    * 设置系统时间✔
@@ -66,9 +68,10 @@ class SignService extends Service {
    * @returns
    * @memberof SignService
    */
-  async setGlobalDate(userId, globalDate) {
+  async setGlobalDate(phone, globalDate) {
     const ctx = this.ctx;
-    await ctx.model.User.updateOne({ _id: userId}, { globalDate });
+    const user = await ctx.model.User.findOneAndUpdate({ phone }, { globalDate });
+    const userId = user._id.toString();
     // 此人要修改的日期,是否在此日已经有过签到记录
     const res = await this.ctx.model.Sign.findOne({ userId, date: globalDate });
     // 有，将此时签到状态置为1
@@ -77,7 +80,7 @@ class SignService extends Service {
     } else {
       await ctx.model.User.updateOne({ _id: userId }, { isSign: 0 });
     }
-    return { msg: '设置系统时间成功' };
+    return { msg: '设置系统时间成功', result: true };
   }
 
   /**
@@ -98,6 +101,7 @@ class SignService extends Service {
         phone,
       }, this.app.config.jwt.secret);
       await this.app.redis.set(phone, token);
+      await this.app.redis.expire(phone, 3600);
       return { data: true, token };
     } else {
       return { data: false, msg: '密码错误' };

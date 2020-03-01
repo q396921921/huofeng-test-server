@@ -24,7 +24,7 @@ module.exports = {
         totalSign = 1;
       }
     }
-    if (!signStartDate && !globalDate) {
+    if (totalSign === 0 || !signStartDate && !globalDate) {
       signStartDate = date;
       totalSign = 1;
     }
@@ -34,9 +34,9 @@ module.exports = {
     let result = {};
     if (nowScore != -1) {
       const newScore = nowScore + insertScore;
-      result = { insertScore, date, totalSign, newScore };
+      result = { insertScore, date, totalSign, newScore, signStartDate };
     } else {
-      result = { insertScore, date, totalSign, };
+      result = { insertScore, date, totalSign, signStartDate };
     }
     return result;
   },

@@ -27,6 +27,7 @@ module.exports = (options, app) => {
                 phone,
               }, this.app.config.jwt.secret);
               await this.app.redis.set(phone, newToken);
+              await this.app.redis.expire(phone, 3600);
               await next();
             } else {
               // rdstk有值却和传入的不一样，证明在a登录的状态下，b又登录并重置了redis中的token，所以此时a传入的token与存储的不一致，此时让a重新登录

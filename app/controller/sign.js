@@ -21,10 +21,16 @@ class SignController extends Controller {
     const result = await service.sign.login(phone, password);
     ctx.helper.setObj(ctx, result);
   }
+  async logout() {
+    const { ctx, service } = this;
+    const phone = ctx.state.user.phone;
+    this.app.redis.set(phone, '');
+    ctx.helper.setObj(ctx, { msg: '退出成功' });
+  }
   // 签到
   async sign() {
     const { ctx, service } = this;
-    const phone= ctx.state.user.phone;
+    const phone = ctx.state.user.phone;
     const result = await service.sign.sign(phone);
     ctx.helper.setObj(ctx, result);
   }
@@ -45,8 +51,9 @@ class SignController extends Controller {
   // 修改系统时间
   async setGlobalDate() {
     const { ctx, service } = this;
-    const { userId, globalDate } = ctx.request.body;
-    const result = await service.sign.setGlobalDate(userId, globalDate);
+    const phone= ctx.state.user.phone;
+    const { globalDate } = ctx.request.body;
+    const result = await service.sign.setGlobalDate(phone, globalDate);
     ctx.helper.setObj(ctx, result);
   }
   // 获得系统时间

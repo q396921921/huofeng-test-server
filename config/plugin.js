@@ -22,11 +22,11 @@ exports.redis = {
   enable: true,
   package: 'egg-redis',
 };
-// exports.sign = {
-//   enable: true,
-//   path: path.join(__dirname, '../app/lib/plugin/egg-sign'),
-// }
-exports.aaaa = {
+exports.sign = {
   enable: true,
-  package: 'egg-test3',
+  path: path.join(__dirname, '../app/lib/plugin/egg-sign'),
 }
+// exports.aaaa = {
+//   enable: true,
+//   package: 'egg-test3',
+// }
